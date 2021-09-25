@@ -1,23 +1,16 @@
-import logo from './logo.svg';
 import './App.css';
+import Navbar from './components/Navbar.js';
+import News from './components/News';
+
+// d98a9e355d3f4580bdf4f04b815ccbf7
+// my api key for news api
+
 
 function App() {
   return (
     <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.js</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
+      <Navbar/>
+      <News/>
     </div>
   );
 }
