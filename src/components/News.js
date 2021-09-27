@@ -2,21 +2,46 @@ import React, { Component } from 'react'
 import NewsItem from './NewsItem'
 
 export default class News extends Component {
-    articles = []
     constructor() {
         super();
         this.state = {
-            articles: this.articles,
-            loading: false
+            articles: [],
+            pageSize: 10, //by default we set the no of articles in one page to 10
+            loading: false,
+            page: 1,    //initially we are on the first page
+            disableNextButton: false
         }
     }
 
     async componentDidMount() {
-        let url = "https://newsapi.org/v2/top-headlines?country=in&apiKey=d98a9e355d3f4580bdf4f04b815ccbf7"
+        // page size is given in the url
+        let url = `https://newsapi.org/v2/top-headlines?country=in&apiKey=d98a9e355d3f4580bdf4f04b815ccbf7&page=1&pageSize=${this.state.pageSize}`
         let response = await fetch(url);
         let data = await response.json();
         // Always use setState to change the value of a state
-        this.setState({ articles: data.articles })
+        this.setState({ articles: data.articles, totalResults: data.totalResults })
+    }
+
+    handlePrevClick = async ()=>{
+        let url = `https://newsapi.org/v2/top-headlines?country=in&apiKey=d98a9e355d3f4580bdf4f04b815ccbf7&page=${this.state.page - 1}&pageSize=${this.state.pageSize}`
+        let response = await fetch(url);
+        let data = await response.json();
+        this.setState({ 
+            articles: data.articles,
+            page: this.state.page - 1,
+            disableNextButton: false
+         })
+    }
+    handleNextClick = async ()=>{
+        let url = `https://newsapi.org/v2/top-headlines?country=in&apiKey=d98a9e355d3f4580bdf4f04b815ccbf7&page=${this.state.page + 1}&pageSize=${this.state.pageSize}`
+        let response = await fetch(url);
+        let data = await response.json();
+        this.setState({ 
+            articles: data.articles,
+            page: this.state.page + 1,
+            // totalResults/pageSize = total No Of Pages 
+            disableNextButton: this.state.page === (Math.ceil(this.state.totalResults / this.state.pageSize) - 1) ? true :false
+        })
     }
 
     render() {
@@ -36,8 +61,8 @@ export default class News extends Component {
                     ))}
                 </div>
                 <div className="d-flex justify-content-between my-3">
-                    <button type="button" class="btn btn-dark">&larr; Previous</button>
-                    <button type="button" class="btn btn-dark">Next &rarr;</button>
+                    <button disabled={this.state.page <= 1} onClick={this.handlePrevClick} type="button" className="btn btn-dark">&larr; Previous</button>
+                    <button disabled={this.state.disableNextButton} onClick={this.handleNextClick} type="button" className="btn btn-dark">Next &rarr;</button>
                 </div>
             </div>
         )
