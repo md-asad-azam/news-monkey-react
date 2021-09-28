@@ -10,7 +10,7 @@ function App() {
   return (
     <div className="App">
       <Navbar/>
-      <News/>
+      <News pageSize="12" country="in" category="science"/>
     </div>
   );
 }

@@ -1,8 +1,23 @@
 import React, { Component } from 'react'
 import NewsItem from './NewsItem'
 import Spinner from './Spinner';
+import PropTypes from 'prop-types'
+
 
 export default class News extends Component {
+
+    static defaultProps = {
+        country: 'in',
+        pageSize: 8,
+        category: 'general',
+    }
+
+    static propTypes = {
+        country: PropTypes.string,
+        pageSize: PropTypes.number,
+        category: PropTypes.string,
+    }
+
     constructor() {
         super();
         this.state = {
@@ -15,35 +30,35 @@ export default class News extends Component {
 
     async componentDidMount() {
         // page size is given in the url
-        let url = `https://newsapi.org/v2/top-headlines?country=in&apiKey=d98a9e355d3f4580bdf4f04b815ccbf7&page=1&pageSize=${this.state.pageSize}`
-        this.setState({loading: true})
+        let url = `https://newsapi.org/v2/top-headlines?country=${this.props.country}&category=${this.props.category}&apiKey=d98a9e355d3f4580bdf4f04b815ccbf7&page=1&pageSize=${this.props.pageSize}`
+        this.setState({ loading: true })
         let response = await fetch(url);
         let data = await response.json();
         // Always use setState to change the value of a state
-        this.setState({ 
+        this.setState({
             articles: data.articles,
             totalResults: data.totalResults,
-            loading: false 
+            loading: false
         })
     }
 
-    handlePrevClick = async ()=>{
-        let url = `https://newsapi.org/v2/top-headlines?country=in&apiKey=d98a9e355d3f4580bdf4f04b815ccbf7&page=${this.state.page - 1}&pageSize=${this.state.pageSize}`
-        this.setState({loading: true})
+    handlePrevClick = async () => {
+        let url = `https://newsapi.org/v2/top-headlines?country=${this.props.country}&category=${this.props.category}&apiKey=d98a9e355d3f4580bdf4f04b815ccbf7&page=${this.state.page - 1}&pageSize=${this.props.pageSize}`
+        this.setState({ loading: true })
         let response = await fetch(url);
         let data = await response.json();
-        this.setState({ 
+        this.setState({
             articles: data.articles,
             page: this.state.page - 1,
             loading: false
-         })
+        })
     }
-    handleNextClick = async ()=>{
-        let url = `https://newsapi.org/v2/top-headlines?country=in&apiKey=d98a9e355d3f4580bdf4f04b815ccbf7&page=${this.state.page + 1}&pageSize=${this.state.pageSize}`
-        this.setState({loading: true})
+    handleNextClick = async () => {
+        let url = `https://newsapi.org/v2/top-headlines?country=${this.props.country}&category=${this.props.category}&apiKey=d98a9e355d3f4580bdf4f04b815ccbf7&page=${this.state.page + 1}&pageSize=${this.props.pageSize}`
+        this.setState({ loading: true })
         let response = await fetch(url);
         let data = await response.json();
-        this.setState({ 
+        this.setState({
             articles: data.articles,
             page: this.state.page + 1,
             loading: false
@@ -53,8 +68,10 @@ export default class News extends Component {
     render() {
         return (
             <div className="container my-3">
-                {this.state.loading && <Spinner/>}
+                {/* spinner visible only when loading is true */}
+                {this.state.loading && <Spinner />}
                 <div className="row">
+                    {/* the news item is only visible when not loading */}
                     {!this.state.loading && this.state.articles.map((element) => (
                         <div key={element.url} className="col-md-4">
                             <NewsItem
@@ -68,7 +85,7 @@ export default class News extends Component {
                 </div>
                 <div className="d-flex justify-content-between my-3">
                     <button disabled={this.state.page <= 1} onClick={this.handlePrevClick} type="button" className="btn btn-dark">&larr; Previous</button>
-                    <button disabled={this.state.page === (Math.ceil(this.state.totalResults / this.state.pageSize))} onClick={this.handleNextClick} type="button" className="btn btn-dark">Next &rarr;</button>
+                    <button disabled={this.state.page === (Math.ceil(this.state.totalResults / this.props.pageSize))} onClick={this.handleNextClick} type="button" className="btn btn-dark">Next &rarr;</button>
                 </div>
             </div>
         )
