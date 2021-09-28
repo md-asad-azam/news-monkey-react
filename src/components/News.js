@@ -79,6 +79,9 @@ export default class News extends Component {
                                 desc={element.description ? element.description : ""}
                                 url={element.url}
                                 urlToImg={element.urlToImage ? element.urlToImage : "https://images.livemint.com/img/2021/09/27/600x338/415be322-4602-11eb-bc1d-4bfe13e32b0e_1608858841050_1608858879986_1632705127019.jpg"}
+                                author={element.author}
+                                publitionDate={element.publishedAt}
+                                source={element.source.name}
                             />
                         </div>
                     ))}
