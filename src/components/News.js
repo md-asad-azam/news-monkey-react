@@ -34,7 +34,7 @@ export default class News extends Component {
 
     async componentDidMount() {
         document.title = "News Monkey | " + this.capitalize(this.props.category);
-        let url = `https://newsapi.org/v2/top-headlines?country=${this.props.country}&category=${this.props.category}&apiKey=d98a9e355d3f4580bdf4f04b815ccbf7&page=1&pageSize=${this.props.pageSize}`
+        let url = `https://newsapi.org/v2/top-headlines?country=${this.props.country}&category=${this.props.category}&apiKey=${this.props.apiKey}&page=1&pageSize=${this.props.pageSize}`
         this.setState({ loading: true })
         this.props.setProgress(10);
         let response = await fetch(url);
@@ -51,7 +51,7 @@ export default class News extends Component {
 
     fetchData = async () => {
         this.setState({ page: this.state.page + 1 })
-        let url = `https://newsapi.org/v2/top-headlines?country=${this.props.country}&category=${this.props.category}&apiKey=d98a9e355d3f4580bdf4f04b815ccbf7&page=${this.state.page}&pageSize=${this.props.pageSize}`
+        let url = `https://newsapi.org/v2/top-headlines?country=${this.props.country}&category=${this.props.category}&apiKey=${this.props.apiKey}&page=${this.state.page}&pageSize=${this.props.pageSize}`
         this.setState({ loading: true })
         let response = await fetch(url);
         let data = await response.json();
