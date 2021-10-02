@@ -1,98 +1,94 @@
-import React, { Component } from 'react'
+import React, { useState, useEffect } from 'react'
 import NewsItem from './NewsItem'
 import Spinner from './Spinner';
 import PropTypes from 'prop-types'
 import InfiniteScroll from 'react-infinite-scroll-component';
 
-export default class News extends Component {
+export default function News(props) {
 
-    static defaultProps = {
-        country: 'in',
-        pageSize: 8,
-        category: 'general',
-    }
 
-    static propTypes = {
-        country: PropTypes.string,
-        pageSize: PropTypes.number,
-        category: PropTypes.string,
-    }
+    const [articles, setArticles] = useState([])
+    const [page, setPage] = useState(1)
+    const [totalResults, setTotalResults] = useState(999)
+    // const [loading, setLoading] = useState(false)
+    // we do not require it when we are using infiniteScroll
 
-    constructor() {
-        super();
-        this.state = {
-            articles: [],
-            pageSize: 10,
-            loading: false,
-            page: 1, 
-        }
-    }
+    useEffect(() => {
+        fetchData();
+        // eslint-disable-next-line
+    }, [])
+    // this comment eslint... is used so that there is no warning on console to enter values in thatempty array which we are passing
 
-    capitalize(word) {
+    function capitalize(word) {
         return word[0].toUpperCase() + word.slice(1).toLowerCase();
     }
 
-    async componentDidMount() {
-        document.title = "News Monkey | " + this.capitalize(this.props.category);
-        let url = `https://newsapi.org/v2/top-headlines?country=${this.props.country}&category=${this.props.category}&apiKey=${this.props.apiKey}&page=1&pageSize=${this.props.pageSize}`
-        this.setState({ loading: true })
-        this.props.setProgress(10);
+    async function fetchData() {
+        document.title = "News Monkey | " + capitalize(props.category);
+        let url = `https://newsapi.org/v2/top-headlines?country=${props.country}&category=${props.category}&apiKey=${props.apiKey}&page=${page}&pageSize=${props.pageSize}`
+        props.setProgress(10);
         let response = await fetch(url);
-        this.props.setProgress(30);
+        props.setProgress(30);
         let data = await response.json();
-        this.props.setProgress(70);
-        this.setState({
-            articles: data.articles,
-            totalResults: data.totalResults,
-            loading: false
-        })
-        this.props.setProgress(100);
+        props.setProgress(70);
+        setArticles(data.articles)
+        setTotalResults(data.totalResults)
+        props.setProgress(100);
     }
 
-    fetchData = async () => {
-        this.setState({ page: this.state.page + 1 })
-        let url = `https://newsapi.org/v2/top-headlines?country=${this.props.country}&category=${this.props.category}&apiKey=${this.props.apiKey}&page=${this.state.page}&pageSize=${this.props.pageSize}`
-        this.setState({ loading: true })
+    const fetchMoreData = async () => {
+        let url = `https://newsapi.org/v2/top-headlines?country=${props.country}&category=${props.category}&apiKey=${props.apiKey}&page=${page + 1}&pageSize=${props.pageSize}`
+        setPage(page + 1) //this is async func therefore we will fetch the same news again if we put it before url
         let response = await fetch(url);
         let data = await response.json();
-        this.setState({
-            articles: this.state.articles.concat(data.articles),
-            totalResults: data.totalResults,
-            loading: false
-        })
+        setArticles(articles.concat(data.articles))
+        setTotalResults(data.totalResults)
     }
 
-    render() {
-        return (
-            <div className="container my-3">
-                <InfiniteScroll
-                    dataLength={this.state.articles.length}
-                    next={this.fetchData}
-                    hasMore={this.state.articles.length !== this.state.totalResults}
-                    loader={<Spinner />}
-                    endMessage={
-                        <p style={{ textAlign: 'center' }}>
-                            <b>You have reached to the end of this category</b>
-                        </p>
-                    }
-                >
-                    <div className="container row">
-                        {this.state.articles.map((element) => (
-                            <div key={element.url} className="col-md-4">
-                                <NewsItem
-                                    title={element.title ? element.title : ""}
-                                    desc={element.description ? element.description : ""}
-                                    url={element.url}
-                                    urlToImg={element.urlToImage ? element.urlToImage : "https://images.livemint.com/img/2021/09/27/600x338/415be322-4602-11eb-bc1d-4bfe13e32b0e_1608858841050_1608858879986_1632705127019.jpg"}
-                                    author={element.author}
-                                    publitionDate={element.publishedAt}
-                                    source={element.source.name}
-                                />
-                            </div>
-                        ))}
-                    </div>
-                </InfiniteScroll>
-            </div>
-        )
-    }
+
+    return (
+        <div className="container my-3">
+            <div style={{marginTop: "60px"}}></div>
+            <InfiniteScroll
+                dataLength={articles.length}
+                next={fetchMoreData}
+                hasMore={articles.length < totalResults}
+                loader={<Spinner />}
+                endMessage={
+                    <p style={{ textAlign: 'center' }}>
+                        <b>You have reached to the end of this category</b>
+                    </p>
+                }
+            >
+                <div className="container row">
+                    {articles.map((element) => (
+                        <div key={element.url} className="col-md-4">
+                            <NewsItem
+                                title={element.title ? element.title : ""}
+                                desc={element.description ? element.description : ""}
+                                url={element.url}
+                                urlToImg={element.urlToImage ? element.urlToImage : "https://images.livemint.com/img/2021/09/27/600x338/415be322-4602-11eb-bc1d-4bfe13e32b0e_1608858841050_1608858879986_1632705127019.jpg"}
+                                author={element.author}
+                                publitionDate={element.publishedAt}
+                                source={element.source.name}
+                            />
+                        </div>
+                    ))}
+                </div>
+            </InfiniteScroll>
+        </div>
+    )
+
+}
+
+News.defaultProps = {
+    country: 'in',
+    pageSize: 8,
+    category: 'general',
+}
+
+News.propTypes = {
+    country: PropTypes.string,
+    pageSize: PropTypes.number,
+    category: PropTypes.string,
 }
